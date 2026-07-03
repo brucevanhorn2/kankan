@@ -1,8 +1,12 @@
 import { app, BrowserWindow } from 'electron';
 import path from 'node:path';
+import { registerIpcHandlers } from './ipcHandlers';
+
+let mainWindow: BrowserWindow | null = null;
+let isQuitting = false;
 
 const createWindow = () => {
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     webPreferences: {
@@ -20,6 +24,19 @@ const createWindow = () => {
       path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`),
     );
   }
+
+  registerIpcHandlers(mainWindow);
+
+  mainWindow.on('close', (event) => {
+    if (!isQuitting && mainWindow) {
+      event.preventDefault();
+      mainWindow.webContents.send('app:flush-request');
+    }
+  });
+
+  mainWindow.on('closed', () => {
+    mainWindow = null;
+  });
 };
 
 // This method will be called when Electron has finished
@@ -37,12 +54,11 @@ app.on('window-all-closed', () => {
 });
 
 app.on('activate', () => {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow();
   }
 });
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.
+app.on('before-quit', () => {
+  isQuitting = true;
+});
