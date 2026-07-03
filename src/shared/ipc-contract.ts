@@ -8,6 +8,7 @@ export const IPC_CHANNELS = {
   RECENT_LIST: 'recent:list',
   BOARD_LOADED: 'board:loaded',
   BOARD_OPEN_ERROR: 'board:open-error',
+  BOARD_FILE_CHANGED: 'board:file-changed',
   APP_FLUSH_REQUEST: 'app:flush-request',
   APP_READY_TO_CLOSE: 'app:ready-to-close',
 } as const;

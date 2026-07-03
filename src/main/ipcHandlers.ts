@@ -1,6 +1,7 @@
 import { ipcMain, dialog, BrowserWindow } from 'electron';
 import { readBoardFile, writeBoardFile } from './boardFile';
 import { addRecentFile, removeRecentFile, getRecentFiles } from './recentFiles';
+import { watchBoard, stopWatchingBoard, recordSaveTime } from './fileWatcher';
 import { IPC_CHANNELS } from '../shared/ipc-contract';
 import { refreshMenu } from './menu';
 import type { Board, Column } from '../shared/types';
@@ -84,6 +85,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
   ipcMain.handle(IPC_CHANNELS.BOARD_SAVE, async (_event, filePath: string, board: Board) => {
     try {
       await writeBoardFile(filePath, board);
+      recordSaveTime();
       return { ok: true };
     } catch (error) {
       return {
@@ -97,8 +99,10 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
 
 async function handleOpenBoardPath(mainWindow: BrowserWindow, filePath: string): Promise<{ board: Board; filePath: string } | { error: 'not-found' | 'invalid'; filePath: string }> {
   try {
+    stopWatchingBoard();
     const board = await readBoardFile(filePath);
     await addRecentFile(filePath, board.name);
+    watchBoard(filePath, mainWindow);
     mainWindow.webContents.send(IPC_CHANNELS.BOARD_LOADED, { board, filePath });
     return { board, filePath };
   } catch (error) {

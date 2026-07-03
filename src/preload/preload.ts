@@ -18,6 +18,9 @@ const kankan = {
   onFlushRequest: (callback: () => void) => {
     ipcRenderer.on(IPC_CHANNELS.APP_FLUSH_REQUEST, callback);
   },
+  onFileChanged: (callback: (payload: BoardLoadPayload) => void) => {
+    ipcRenderer.on(IPC_CHANNELS.BOARD_FILE_CHANGED, (_event, payload) => callback(payload));
+  },
   readyToClose: () => ipcRenderer.send(IPC_CHANNELS.APP_READY_TO_CLOSE),
 };
 

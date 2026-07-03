@@ -35,10 +35,19 @@ function AppContent() {
     });
   }, []);
 
+  const handleFileChanged = useCallback((payload: { board: Board; filePath: string }) => {
+    if (payload.filePath !== filePath) {
+      return;
+    }
+    setBoard(payload.board);
+    message.info('Board updated by external process');
+  }, [filePath]);
+
   useEffect(() => {
     window.kankan.onBoardLoaded(handleBoardLoaded);
     window.kankan.onOpenError(handleOpenError);
-  }, [handleBoardLoaded, handleOpenError]);
+    window.kankan.onFileChanged(handleFileChanged);
+  }, [handleBoardLoaded, handleOpenError, handleFileChanged]);
 
   if (!board || !filePath) {
     return <EmptyState />;

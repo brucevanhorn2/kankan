@@ -2,6 +2,7 @@ import { app, BrowserWindow, Menu } from 'electron';
 import path from 'node:path';
 import { registerIpcHandlers } from './ipcHandlers';
 import { buildMenu } from './menu';
+import { stopWatchingBoard } from './fileWatcher';
 
 let mainWindow: BrowserWindow | null = null;
 let isQuitting = false;
@@ -38,6 +39,7 @@ const createWindow = async () => {
   });
 
   mainWindow.on('closed', () => {
+    stopWatchingBoard();
     mainWindow = null;
   });
 };
