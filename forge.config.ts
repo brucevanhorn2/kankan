@@ -1,6 +1,7 @@
 import type { ForgeConfig } from '@electron-forge/shared-types';
 import { MakerZIP } from '@electron-forge/maker-zip';
 import { MakerDeb } from '@electron-forge/maker-deb';
+import { MakerDMG } from '@electron-forge/maker-dmg';
 import { VitePlugin } from '@electron-forge/plugin-vite';
 import { FusesPlugin } from '@electron-forge/plugin-fuses';
 import { FuseV1Options, FuseVersion } from '@electron/fuses';
@@ -8,13 +9,20 @@ import { FuseV1Options, FuseVersion } from '@electron/fuses';
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
+    icon: './assets/icon',
   },
   rebuildConfig: {},
   makers: [
-    // Windows (Squirrel) and macOS (dmg/zip) makers disabled on this Linux dev machine.
-    // Re-enable them via a CI matrix (windows-latest/macos-latest/ubuntu-latest) for cross-platform builds.
+    // Linux makers
     new MakerZIP({}, ['linux']),
     new MakerDeb({}),
+    // macOS makers
+    new MakerDMG({
+      format: 'ULFO',
+    }),
+    new MakerZIP({}, ['darwin']),
+    // Windows makers disabled on this Linux dev machine.
+    // To build for Windows, use a CI matrix (windows-latest) or Windows machine.
   ],
   plugins: [
     new VitePlugin({
