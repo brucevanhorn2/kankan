@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { DndContext, DragEndEvent, DragOverlay, PointerSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable';
-import { Button, Input, Space } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import { Button, Input, Space, Tooltip } from 'antd';
+import { PlusOutlined, UndoOutlined, RedoOutlined } from '@ant-design/icons';
 import { useBoardContext } from '../context/BoardContext';
 import { BoardHeader } from './BoardHeader';
 import { ColumnComponent } from './ColumnComponent';
+import { SearchBar } from './SearchBar';
+import { FilterBar } from './FilterBar';
 
 interface BoardViewProps {
   isSaving: boolean;
@@ -23,15 +25,51 @@ export function BoardView({ isSaving }: BoardViewProps) {
   const { board, mutate } = useBoardContext();
   const [newColumnTitle, setNewColumnTitle] = useState('');
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { distance: 8 }),
     useSensor(TouchSensor, { distance: 8 }),
   );
 
+  // Track undo/redo history
+  const [history, setHistory] = useState([{ board, timestamp: Date.now() }]);
+  const [historyIndex, setHistoryIndex] = useState(0);
+
+  const recordHistory = (newBoard: typeof board) => {
+    setHistory((prev) => [...prev.slice(0, historyIndex + 1), { board: newBoard, timestamp: Date.now() }]);
+    setHistoryIndex((prev) => prev + 1);
+  };
+
+  const canUndo = historyIndex > 0;
+  const canRedo = historyIndex < history.length - 1;
+
+  const handleUndo = () => {
+    if (canUndo) {
+      const newIndex = historyIndex - 1;
+      setHistoryIndex(newIndex);
+      mutate(() => history[newIndex].board);
+    }
+  };
+
+  const handleRedo = () => {
+    if (canRedo) {
+      const newIndex = historyIndex + 1;
+      setHistoryIndex(newIndex);
+      mutate(() => history[newIndex].board);
+    }
+  };
+
+  const wrappedMutate = (updater: (board: typeof board) => typeof board) => {
+    const newBoard = updater(board);
+    recordHistory(newBoard);
+    mutate(() => newBoard);
+  };
+
   const handleAddColumn = () => {
     if (newColumnTitle.trim()) {
-      mutate((b) => {
+      wrappedMutate((b) => {
         const id = crypto.randomUUID();
         return {
           ...b,
@@ -64,7 +102,7 @@ export function BoardView({ isSaving }: BoardViewProps) {
       const overIndex = board.columnOrder.indexOf(over.id as string);
 
       if (activeIndex !== -1 && overIndex !== -1) {
-        mutate((b) => ({
+        wrappedMutate((b) => ({
           ...b,
           updatedAt: new Date().toISOString(),
           columnOrder: arrayMove(b.columnOrder, activeIndex, overIndex),
@@ -90,7 +128,7 @@ export function BoardView({ isSaving }: BoardViewProps) {
         return;
       }
 
-      mutate((b) => {
+      wrappedMutate((b) => {
         const sourceColumn = b.columns[card.columnId];
         const targetColumn = b.columns[targetColumnId];
 
@@ -129,9 +167,47 @@ export function BoardView({ isSaving }: BoardViewProps) {
     }
   };
 
+  // Filter cards based on search and color
+  const filteredCardIds = new Set<string>();
+  Object.entries(board.cards).forEach(([cardId, card]) => {
+    const matchesSearch = searchQuery === '' || card.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesColor =
+      selectedColor === null ||
+      (selectedColor === 'none' && !card.color) ||
+      (selectedColor !== 'none' && card.color === selectedColor);
+
+    if (matchesSearch && matchesColor) {
+      filteredCardIds.add(cardId);
+    }
+  });
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       <BoardHeader isSaving={isSaving} />
+
+      <SearchBar searchQuery={searchQuery} onSearchChange={setSearchQuery} />
+      <FilterBar selectedColor={selectedColor} onColorChange={setSelectedColor} />
+
+      <div style={{ padding: '8px 16px', borderBottom: '1px solid #434343' }}>
+        <Space size="small">
+          <Tooltip title="Undo (Ctrl+Z)">
+            <Button
+              size="small"
+              icon={<UndoOutlined />}
+              onClick={handleUndo}
+              disabled={!canUndo}
+            />
+          </Tooltip>
+          <Tooltip title="Redo (Ctrl+Shift+Z)">
+            <Button
+              size="small"
+              icon={<RedoOutlined />}
+              onClick={handleRedo}
+              disabled={!canRedo}
+            />
+          </Tooltip>
+        </Space>
+      </div>
 
       <div style={{ flex: 1, overflow: 'auto', padding: '16px' }}>
         <DndContext sensors={sensors} onDragEnd={handleDragEnd} onDragStart={(event) => setActiveId(event.active.id as string)}>
@@ -139,7 +215,8 @@ export function BoardView({ isSaving }: BoardViewProps) {
             <div style={{ display: 'flex', gap: '16px', height: 'fit-content' }}>
               {board.columnOrder.map((columnId) => {
                 const column = board.columns[columnId];
-                const cards = column.cardOrder.map((cardId) => board.cards[cardId]);
+                const cardIds = column.cardOrder.filter((id) => filteredCardIds.has(id));
+                const cards = cardIds.map((cardId) => board.cards[cardId]);
                 return <ColumnComponent key={columnId} column={column} cards={cards} />;
               })}
 

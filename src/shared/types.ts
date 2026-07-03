@@ -1,4 +1,6 @@
-import type { Content } from '@tiptap/react';
+import type { Content as TiptapContent } from '@tiptap/react';
+
+export type Content = TiptapContent;
 
 export interface Board {
   id: string;

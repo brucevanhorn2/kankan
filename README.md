@@ -6,12 +6,17 @@ A simple offline kanban board app for personal note-taking and task management.
 
 - **Create/Open Boards**: File > New Board or File > Open Board to work with JSON-based boards
 - **Manage Columns**: Add, rename, delete, and reorder columns
-- **Manage Cards**: Add, edit, delete cards with titles and body text
+- **Manage Cards**: Add, edit, delete cards with rich-text bodies
+- **Rich-Text Editing**: Bold, italic, strikethrough, text color, and bullet lists in card bodies
 - **Card Colors**: Assign background colors to cards from preset swatches or a color picker
 - **Drag & Drop**: Drag cards between columns or reorder them within a column
 - **Autosave**: Changes are automatically saved to the board JSON file every ~800ms
 - **Dark Theme**: Comfortable dark mode for evening work
 - **Recent Boards**: Quickly access recently opened boards from the File menu
+- **Search**: Find cards by title or content
+- **Filters**: Filter cards by background color
+- **Undo/Redo**: Full command history for all board changes
+- **Real-Time File Watcher**: External processes can modify the board JSON and changes appear live in the UI
 
 ## Getting Started
 
@@ -141,12 +146,12 @@ Boards are stored as plain JSON files, making them git-friendly and easy to back
 
 ## Future Enhancements
 
-- **Rich-text editing**: Tiptap integration for bold, italic, strikethrough, text color, bullet lists (infrastructure in place)
-- **Undo/Redo**: Command history
-- **Search**: Find cards by title or content
-- **Filters**: Filter cards by color or status
-- **Export**: Export boards to CSV, Markdown, or PDF
-- **Sync**: Optional cloud sync (keeping local-first design)
+- **Card attachments**: Add images, files, or links to cards
+- **Card due dates**: Set and track deadlines for tasks
+- **Labels/Tags**: Organize cards with custom tags across columns
+- **Bulk actions**: Select multiple cards for operations
+- **Templates**: Save and reuse board templates for recurring projects
+- **Statistics**: Track velocity, burndown, and other metrics
 
 ## License
 

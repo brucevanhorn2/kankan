@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Modal, Input, Button, Space, Popconfirm, ColorPicker } from 'antd';
-import type { Card } from '../../shared/types';
+import type { Card, Content } from '../../shared/types';
 import { useBoardContext } from '../context/BoardContext';
+import { RichTextEditor } from './RichTextEditor';
 
 interface CardEditorModalProps {
   card: Card;
@@ -14,9 +15,7 @@ const COLOR_PRESETS = ['#ffffff', '#fff7e6', '#fffb8f', '#f6ffed', '#e6f7ff', '#
 export function CardEditorModal({ card, open, onClose }: CardEditorModalProps) {
   const { mutate } = useBoardContext();
   const [title, setTitle] = useState(card.title);
-  const [bodyText, setBodyText] = useState(
-    card.body?.content?.[0]?.content?.[0]?.text || '',
-  );
+  const [body, setBody] = useState<Content>(card.body || { type: 'doc', content: [] });
   const [color, setColor] = useState(card.color || '#ffffff');
 
   const handleSave = () => {
@@ -28,10 +27,7 @@ export function CardEditorModal({ card, open, onClose }: CardEditorModalProps) {
         [card.id]: {
           ...card,
           title,
-          body: {
-            type: 'doc',
-            content: bodyText ? [{ type: 'paragraph', content: [{ type: 'text', text: bodyText }] }] : [],
-          },
+          body,
           color: color !== '#ffffff' ? color : undefined,
           updatedAt: new Date().toISOString(),
         },
@@ -114,13 +110,8 @@ export function CardEditorModal({ card, open, onClose }: CardEditorModalProps) {
         </div>
 
         <div>
-          <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Body (plain text for now)</label>
-          <Input.TextArea
-            value={bodyText}
-            onChange={(e) => setBodyText(e.target.value)}
-            placeholder="Card body text"
-            rows={6}
-          />
+          <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Body</label>
+          <RichTextEditor content={body} onChange={setBody} />
         </div>
       </Space>
     </Modal>
