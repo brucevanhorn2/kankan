@@ -3,13 +3,39 @@
 The `icon` parameter in `forge.config.ts` references `./assets/icon` (no extension).
 Electron Forge automatically looks for platform-specific formats:
 
-- **macOS**: `icon.icns` (1024x1024 recommended)
-- **Linux**: `icon.png` (512x512 or larger)
-- **Windows**: `icon.ico` (256x256)
+- **macOS**: `icon.icns` (multiple resolutions, 16–1024px)
+- **Linux**: `icon.png` (512x512)
+- **Windows**: `icon.ico` (multiple resolutions, 16–256px)
 
-## Generating Icons
+## Automated SVG → Icons Workflow
 
-To create icons from a single source image, use a tool like:
+If you have an SVG, the build system can automatically generate all required formats:
+
+### Setup
+
+1. **Place your SVG** at `assets/icon.svg`
+   - SVG should be square and ideally at least 1024x1024
+   - Make sure it renders well at small sizes (test at 16x16)
+
+2. **Run the icon generator**:
+   ```bash
+   node scripts/generateIcons.js
+   ```
+
+   This will create:
+   - `assets/icon.png` (512x512 for Linux)
+   - `assets/icon.icns` (macOS, multiple sizes)
+   - `assets/icon.ico` (Windows, multiple sizes)
+
+3. **Done!** Your app will now use these icons when you build.
+
+### Example: "A Pretty Lady Kicking" 👧🥋
+
+Create an SVG with that concept, drop it in `assets/icon.svg`, run the generator, and you're all set!
+
+## Manual Icon Creation
+
+If you prefer to create icons manually:
 
 - **ImageMagick** (CLI):
   ```bash
@@ -21,16 +47,12 @@ To create icons from a single source image, use a tool like:
   - png to ico: https://convertio.co/png-ico/
   - png to icns: https://icoconvert.com/
 
-- **macOS native** (if you have a .png):
+- **macOS native**:
   ```bash
   sips -s format icns icon.png -o icon.icns
   ```
 
 ## Current Status
 
-No icon files are included yet (app will build with Electron's default icon).
-Add your icon files here to customize the app appearance on each platform.
-
-## User's Idea: "A Pretty Lady Kicking" 👧🥋
-
-When you're ready, you can create a custom icon based on this concept!
+No icon files included yet. App will build with Electron's default icon.
+Add `assets/icon.svg` and run `node scripts/generateIcons.js` to customize.

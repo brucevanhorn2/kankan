@@ -1,0 +1,20 @@
+<svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+  <!-- Placeholder kanban icon: simple board -->
+  <rect width="256" height="256" fill="#1890ff" rx="32"/>
+
+  <!-- Three columns -->
+  <rect x="16" y="32" width="56" height="208" fill="#ffffff" opacity="0.2" rx="4"/>
+  <rect x="100" y="32" width="56" height="208" fill="#ffffff" opacity="0.2" rx="4"/>
+  <rect x="184" y="32" width="56" height="208" fill="#ffffff" opacity="0.2" rx="4"/>
+
+  <!-- Cards in columns -->
+  <rect x="24" y="48" width="40" height="32" fill="#ffffff" rx="4"/>
+  <rect x="24" y="96" width="40" height="32" fill="#ffffff" rx="4"/>
+
+  <rect x="108" y="48" width="40" height="32" fill="#ffffff" rx="4"/>
+  <rect x="108" y="96" width="40" height="32" fill="#ffffff" rx="4"/>
+  <rect x="108" y="144" width="40" height="32" fill="#ffffff" rx="4"/>
+
+  <rect x="192" y="48" width="40" height="32" fill="#ffffff" rx="4"/>
+  <rect x="192" y="96" width="40" height="32" fill="#ffffff" rx="4"/>
+</svg>
