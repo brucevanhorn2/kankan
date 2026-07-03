@@ -2,7 +2,7 @@
   "name": "kankan",
   "productName": "kankan",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "A simple offline kanban board app for single-user note management",
   "main": ".vite/build/main.js",
   "private": true,
   "scripts": {
