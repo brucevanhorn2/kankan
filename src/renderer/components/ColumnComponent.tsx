@@ -26,13 +26,13 @@ export function ColumnComponent({ column, cards }: ColumnComponentProps) {
     data: { type: 'column' },
   });
 
-  const { attributes, listeners, setNodeRef: setSortableNodeRef } = useSortable({
+  const { attributes, listeners, setNodeRef: setSortableNodeRef, transform } = useSortable({
     id: column.id,
     data: { type: 'column' },
   });
 
   const style = {
-    transform: CSS.Transform.toString(attributes),
+    transform: CSS.Transform.toString(transform),
   };
 
   const handleRename = () => {
@@ -142,7 +142,7 @@ export function ColumnComponent({ column, cards }: ColumnComponentProps) {
             />
           ) : (
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span {...listeners}>{column.title}</span>
+              <span {...attributes} {...listeners}>{column.title}</span>
               <Popconfirm
                 title="Delete column?"
                 description={`This will delete ${column.cardOrder.length} card(s).`}

@@ -5,7 +5,10 @@ import { IPC_CHANNELS } from '../shared/ipc-contract';
 
 let watcher: FSWatcher | null = null;
 let lastSaveTime = 0;
-const SAVE_DEBOUNCE_MS = 100;
+// Must comfortably exceed chokidar's awaitWriteFinish settle time (stabilityThreshold +
+// pollInterval below) or the watcher mistakes our own autosave writes for external changes,
+// which then get treated as new edits and re-saved, causing an infinite update loop.
+const SAVE_DEBOUNCE_MS = 1000;
 
 export function watchBoard(filePath: string, mainWindow: BrowserWindow): void {
   stopWatchingBoard();

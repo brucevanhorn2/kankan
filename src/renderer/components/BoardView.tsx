@@ -24,6 +24,7 @@ function arrayMove<T>(array: T[], from: number, to: number): T[] {
 export function BoardView({ isSaving }: BoardViewProps) {
   const { board, mutate } = useBoardContext();
   const [newColumnTitle, setNewColumnTitle] = useState('');
+  const [isAddingColumn, setIsAddingColumn] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
@@ -88,6 +89,12 @@ export function BoardView({ isSaving }: BoardViewProps) {
       });
       setNewColumnTitle('');
     }
+    setIsAddingColumn(false);
+  };
+
+  const handleCancelAddColumn = () => {
+    setNewColumnTitle('');
+    setIsAddingColumn(false);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -220,27 +227,48 @@ export function BoardView({ isSaving }: BoardViewProps) {
                 return <ColumnComponent key={columnId} column={column} cards={cards} />;
               })}
 
-              <div
-                style={{
-                  padding: '16px',
-                  backgroundColor: '#fafafa',
-                  borderRadius: '4px',
-                  height: 'fit-content',
-                  minWidth: '280px',
-                }}
-              >
-                <Space direction="vertical" style={{ width: '100%' }}>
-                  <Input
-                    placeholder="New column..."
-                    value={newColumnTitle}
-                    onChange={(e) => setNewColumnTitle(e.target.value)}
-                    onPressEnter={handleAddColumn}
-                  />
-                  <Button type="primary" block icon={<PlusOutlined />} onClick={handleAddColumn}>
-                    Add Column
-                  </Button>
-                </Space>
-              </div>
+              {isAddingColumn ? (
+                <div
+                  style={{
+                    padding: '16px',
+                    backgroundColor: '#fafafa',
+                    borderRadius: '4px',
+                    height: 'fit-content',
+                    minWidth: '280px',
+                  }}
+                >
+                  <Space direction="vertical" style={{ width: '100%' }}>
+                    <Input
+                      autoFocus
+                      placeholder="New column..."
+                      value={newColumnTitle}
+                      onChange={(e) => setNewColumnTitle(e.target.value)}
+                      onPressEnter={handleAddColumn}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Escape') handleCancelAddColumn();
+                      }}
+                      onBlur={() => {
+                        if (!newColumnTitle.trim()) setIsAddingColumn(false);
+                      }}
+                    />
+                    <Space>
+                      <Button type="primary" icon={<PlusOutlined />} onClick={handleAddColumn}>
+                        Add Column
+                      </Button>
+                      <Button onClick={handleCancelAddColumn}>Cancel</Button>
+                    </Space>
+                  </Space>
+                </div>
+              ) : (
+                <Button
+                  type="dashed"
+                  icon={<PlusOutlined />}
+                  onClick={() => setIsAddingColumn(true)}
+                  style={{ height: 'fit-content', flexShrink: 0 }}
+                >
+                  Add Column
+                </Button>
+              )}
             </div>
           </SortableContext>
           <DragOverlay>{activeId ? <div style={{ opacity: 0.5 }}>Dragging...</div> : null}</DragOverlay>

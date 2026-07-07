@@ -11,9 +11,19 @@ interface CardComponentProps {
   onClick: () => void;
 }
 
+function getContrastTextColor(bgColor: string): string {
+  const hex = bgColor.replace('#', '');
+  const full = hex.length === 3 ? hex.split('').map((c) => c + c).join('') : hex;
+  const r = parseInt(full.substring(0, 2), 16);
+  const g = parseInt(full.substring(2, 4), 16);
+  const b = parseInt(full.substring(4, 6), 16);
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return luminance > 0.6 ? 'rgba(0, 0, 0, 0.85)' : 'rgba(255, 255, 255, 0.85)';
+}
+
 export function CardComponent({ card, onClick }: CardComponentProps) {
   const { mutate } = useBoardContext();
-  const { setNodeRef, transform, transition } = useSortable({
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
     id: card.id,
     data: { type: 'card' },
   });
@@ -57,21 +67,24 @@ export function CardComponent({ card, onClick }: CardComponentProps) {
           .substring(0, 80)
       : '';
 
+  const bgColor = card.color || '#ffffff';
+  const textColor = getContrastTextColor(bgColor);
+
   return (
-    <div ref={setNodeRef} style={style} {...attributes}>
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
       <AntCard
         size="small"
         style={{
           cursor: 'pointer',
-          backgroundColor: card.color || '#ffffff',
+          backgroundColor: bgColor,
           marginBottom: '8px',
         }}
         onClick={onClick}
         hoverable
       >
-        <div>
+        <div style={{ color: textColor }}>
           <strong>{card.title}</strong>
-          {bodyPreview && <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>{bodyPreview}</div>}
+          {bodyPreview && <div style={{ fontSize: '12px', opacity: 0.65, marginTop: '4px' }}>{bodyPreview}</div>}
         </div>
         <div style={{ marginTop: '8px', display: 'flex', justifyContent: 'flex-end' }}>
           <Popconfirm
