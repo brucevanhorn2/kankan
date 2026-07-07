@@ -44,9 +44,14 @@ function AppContent() {
   }, [filePath]);
 
   useEffect(() => {
-    window.kankan.onBoardLoaded(handleBoardLoaded);
-    window.kankan.onOpenError(handleOpenError);
-    window.kankan.onFileChanged(handleFileChanged);
+    const offBoardLoaded = window.kankan.onBoardLoaded(handleBoardLoaded);
+    const offOpenError = window.kankan.onOpenError(handleOpenError);
+    const offFileChanged = window.kankan.onFileChanged(handleFileChanged);
+    return () => {
+      offBoardLoaded();
+      offOpenError();
+      offFileChanged();
+    };
   }, [handleBoardLoaded, handleOpenError, handleFileChanged]);
 
   if (!board || !filePath) {

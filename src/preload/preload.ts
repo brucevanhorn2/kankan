@@ -10,16 +10,23 @@ const kankan = {
   saveBoard: (filePath: string, board: Board) => ipcRenderer.invoke(IPC_CHANNELS.BOARD_SAVE, filePath, board) as Promise<BoardSaveResult>,
   listRecent: () => ipcRenderer.invoke(IPC_CHANNELS.RECENT_LIST) as Promise<RecentBoardEntry[]>,
   onBoardLoaded: (callback: (payload: BoardLoadPayload) => void) => {
-    ipcRenderer.on(IPC_CHANNELS.BOARD_LOADED, (_event, payload) => callback(payload));
+    const listener = (_event: Electron.IpcRendererEvent, payload: BoardLoadPayload) => callback(payload);
+    ipcRenderer.on(IPC_CHANNELS.BOARD_LOADED, listener);
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.BOARD_LOADED, listener);
   },
   onOpenError: (callback: (payload: BoardOpenErrorPayload) => void) => {
-    ipcRenderer.on(IPC_CHANNELS.BOARD_OPEN_ERROR, (_event, payload) => callback(payload));
+    const listener = (_event: Electron.IpcRendererEvent, payload: BoardOpenErrorPayload) => callback(payload);
+    ipcRenderer.on(IPC_CHANNELS.BOARD_OPEN_ERROR, listener);
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.BOARD_OPEN_ERROR, listener);
   },
   onFlushRequest: (callback: () => void) => {
     ipcRenderer.on(IPC_CHANNELS.APP_FLUSH_REQUEST, callback);
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.APP_FLUSH_REQUEST, callback);
   },
   onFileChanged: (callback: (payload: BoardLoadPayload) => void) => {
-    ipcRenderer.on(IPC_CHANNELS.BOARD_FILE_CHANGED, (_event, payload) => callback(payload));
+    const listener = (_event: Electron.IpcRendererEvent, payload: BoardLoadPayload) => callback(payload);
+    ipcRenderer.on(IPC_CHANNELS.BOARD_FILE_CHANGED, listener);
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.BOARD_FILE_CHANGED, listener);
   },
   readyToClose: () => ipcRenderer.send(IPC_CHANNELS.APP_READY_TO_CLOSE),
 };

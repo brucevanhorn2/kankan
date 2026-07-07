@@ -63,7 +63,7 @@ export function useDebouncedAutosave(board: Board, filePath: string) {
       });
     };
 
-    window.kankan.onFlushRequest(handleFlushRequest);
+    return window.kankan.onFlushRequest(handleFlushRequest);
   }, [flush]);
 
   return { dirty, isSaving, flush };
